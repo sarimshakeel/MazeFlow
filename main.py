@@ -1,4 +1,5 @@
 import pygame
+from maze_generation import create_grid, generate_maze, draw_maze
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -11,16 +12,24 @@ font1 = pygame.font.Font(fontp1, 40)
 btn1 = pygame.Rect(300, 200, 200, 50)
 btn2 = pygame.Rect(300, 300, 200, 50)
 btn3 = pygame.Rect(300, 400, 200, 50)
-btn_back = pygame.Rect(10, 10, 50, 50) 
+btn_back = pygame.Rect(700, 10, 50, 50)
+btn_generate = pygame.Rect(300, 350, 200, 50)
 
 backimg = pygame.image.load(r"C:\Users\sarim\Desktop\Maze Solver\add-ons\back.png")
 backimg = pygame.transform.scale(backimg, (50, 50))
 
-def generate():
+grid_input = pygame.Rect(200, 270, 400, 50)
+input_active = False
+input_text = ""
+
+grid = None
+grid_mode = False
+
+def generate(grid_size):
     screen.fill((0, 0, 0))
-    text_surface = font1.render("GENERATE", True, (0, 255, 0))
-    screen.blit(text_surface, (300, 200))
-    pygame.display.flip()
+    global grid, grid_mode
+    grid = create_grid(grid_size, grid_size)
+    grid_mode = True
 
 def solve():
     screen.fill((0, 0, 0))
@@ -32,6 +41,7 @@ def leaderboard():
     screen.fill((0, 0, 0))
     text_surface = font1.render("LEADERBOARD", True, (0, 255, 0))
     screen.blit(text_surface, (300, 200))
+    screen.blit(backimg, (btn_back.x, btn_back.y))
     pygame.display.flip()
 
 def exit():
@@ -50,16 +60,45 @@ while running:
             if current_screen == "main":
                 if btn1.collidepoint(mouse_pos):
                     current_screen = "generate"
-                    generate()
-                    solve()
                 if btn2.collidepoint(mouse_pos):
                     current_screen = "leaderboard"
                     leaderboard()
                 if btn3.collidepoint(mouse_pos):
                     exit()
-            else:
+            elif current_screen == "generate":
+                if grid_input.collidepoint(mouse_pos):
+                    input_active = not input_active
+                else:
+                    input_active = False
                 if btn_back.collidepoint(mouse_pos):
                     current_screen = "main"
+                    grid = None
+                    grid_mode = False
+                    input_text = ""
+                if btn_generate.collidepoint(mouse_pos):
+                    try:
+                        grid_size = int(input_text)
+                        generate(grid_size)
+                    except ValueError:
+                        print("Invalid grid size")
+            
+            elif current_screen == "leaderboard":
+                if btn_back.collidepoint(mouse_pos):
+                    current_screen = "main"
+
+        if event.type == pygame.KEYDOWN:
+            if input_active and current_screen == "generate":
+                if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+                    try:
+                        grid_size = int(input_text)
+                        generate(grid_size)
+                    except ValueError:
+                        print("Invalid grid size")
+                    input_text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text += event.unicode
 
     if current_screen == "main":
         screen.fill((0, 0, 0))
@@ -87,9 +126,31 @@ while running:
             btn3_txt = font1.render("EXIT", True, (255, 255, 255))
         btn3_txt_rect = btn3_txt.get_rect(center=btn3.center)
         screen.blit(btn3_txt, btn3_txt_rect)
-    else:
-        # Draw the "Back" button image
+    elif current_screen == "generate":
+        screen.fill((0, 0, 0))
+
+        grid_input_txt = font1.render("Enter Grid Size: ", True, (0, 255, 0))
+        screen.blit(grid_input_txt, (grid_input.x, grid_input.y - 50))
+
+        pygame.draw.rect(screen, (255, 255, 255), grid_input, 2)
+        if input_active:
+            pygame.draw.rect(screen, (0, 255, 0), grid_input, 2)
+        text_surface = font1.render(input_text, True, (255, 255, 255))
+        screen.blit(text_surface, (grid_input.x + 5, grid_input.y + 5))
+
+        btn_generate_txt = font1.render("Generate", True, (0, 255, 0))
+        if btn_generate.collidepoint(pygame.mouse.get_pos()):
+            btn_generate_txt = font1.render("Generate", True, (255, 255, 255))
+        btn_generate_txt_rect = btn_generate_txt.get_rect(center=btn_generate.center)
+        pygame.draw.rect(screen, (255, 255, 255), btn_generate, 2)
+        screen.blit(btn_generate_txt, btn_generate_txt_rect)
+
         screen.blit(backimg, (btn_back.x, btn_back.y))
+
+        if grid_mode:
+            generate_maze(screen, grid, grid_size, grid_size)
+            draw_maze(screen, grid)
+        screen.blit(backimg, (btn_back.x, btn_back.y))    
 
     pygame.display.flip()
     clock.tick(60)

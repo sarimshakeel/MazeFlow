@@ -30,6 +30,7 @@ grid_mode = False
 leaderboard = Leaderboard()
 leaderboard.load_from_file('leaderboard.json')
 
+
 def generate(grid_size):
     screen.fill((0, 0, 0))
     global grid, grid_mode
@@ -192,7 +193,20 @@ while running:
             current_screen = "grid"
             generate_maze(screen, grid, grid_size, grid_size)
             draw_maze(screen, grid)
-            screen.blit(backimg, (btn_back.x, btn_back.y))    
+            screen.blit(backimg, (btn_back.x, btn_back.y)) 
+            
+            controls = [
+                "'D' for DFS",
+                "'B' for BFS",
+                "'F' for Dead",
+                "End Filling"
+            ]
+            y_offset = btn_back.y + btn_back.height + 10
+            for text in controls:
+                control_s = font2.render(text, True, (255, 255, 255))
+                control_rec = control_s.get_rect(topright=(screen.get_width() - 10, y_offset))
+                screen.blit(control_s, control_rec)
+                y_offset += 30  
 
     pygame.display.flip()
     clock.tick(60)

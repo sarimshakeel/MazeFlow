@@ -1,5 +1,6 @@
 import pygame
 from maze_generation import create_grid, generate_maze, draw_maze
+from maze_solving import dfs
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -31,11 +32,9 @@ def generate(grid_size):
     grid = create_grid(grid_size, grid_size)
     grid_mode = True
 
-def solve():
-    screen.fill((0, 0, 0))
-    text_surface = font1.render("SOLVE", True, (0, 255, 0))
-    screen.blit(text_surface, (300, 200))
-    pygame.display.flip()
+def solve_dfs():
+    if grid:
+        dfs(screen, grid)
 
 def leaderboard():
     screen.fill((0, 0, 0))
@@ -100,6 +99,10 @@ while running:
                 else:
                     input_text += event.unicode
 
+            elif current_screen == "grid":
+                if event.key == pygame.K_d:
+                    solve_dfs()
+
     if current_screen == "main":
         screen.fill((0, 0, 0))
         font1.set_italic(True)
@@ -148,6 +151,7 @@ while running:
         screen.blit(backimg, (btn_back.x, btn_back.y))
 
         if grid_mode:
+            current_screen = "grid"
             generate_maze(screen, grid, grid_size, grid_size)
             draw_maze(screen, grid)
         screen.blit(backimg, (btn_back.x, btn_back.y))    

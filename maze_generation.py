@@ -25,6 +25,10 @@ class Cell:
         if self.walls['left']:
             pygame.draw.line(screen, color, (x, y + self.cell_size), (x, y))
 
+    def highlight(self, screen, color):
+        x, y = self.col * self.cell_size, self.row * self.cell_size
+        pygame.draw.rect(screen, color, (x, y, self.cell_size, self.cell_size))
+
 def create_grid(rows, cols):
     cell_size = Width // rows
     grid = [[Cell(row, col, cell_size) for col in range(cols)] for row in range(rows)]
@@ -86,3 +90,5 @@ def draw_maze(win, grid):
     for row in grid:
         for node in row:
             node.draw(win, Green)
+
+           

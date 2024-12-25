@@ -34,14 +34,14 @@ def create_grid(rows, cols):
     grid = [[Cell(row, col, cell_size) for col in range(cols)] for row in range(rows)]
     return grid
 
-def get_neighbors(grid, node, rows, cols):
+def get_neighbors(cell, grid):
     neighbors = []
-    row, col = node.row, node.col
+    row, col = cell.row, cell.col
     if row > 0 and not grid[row - 1][col].visited:  
         neighbors.append(grid[row - 1][col])
-    if col < cols - 1 and not grid[row][col + 1].visited:  
+    if col < len(grid[0]) - 1 and not grid[row][col + 1].visited:  
         neighbors.append(grid[row][col + 1])
-    if row < rows - 1 and not grid[row + 1][col].visited:
+    if row < len(grid) - 1 and not grid[row + 1][col].visited:
         neighbors.append(grid[row + 1][col])
     if col > 0 and not grid[row][col - 1].visited:  
         neighbors.append(grid[row][col - 1])
@@ -69,7 +69,7 @@ def generate_maze(win, grid, rows, cols):
     current.visited = True
 
     while True:
-        neighbors = get_neighbors(grid, current, rows, cols)
+        neighbors = get_neighbors(current, grid)
         if neighbors:
             next_node = random.choice(neighbors)
             next_node.visited = True
@@ -90,5 +90,3 @@ def draw_maze(win, grid):
     for row in grid:
         for node in row:
             node.draw(win, Green)
-
-           

@@ -19,10 +19,13 @@ class Leaderboard:
             json.dump(self.records, file, indent=4)
 
     def load_from_file(self, filename):
-        with open(filename, 'r') as file:
-            self.records = json.load(file)
+        try:
+            with open(filename, 'r') as file:
+                self.records = json.load(file)
+        except FileNotFoundError:
+            self.records = []
 
-    def display_leaderboard(self,screen,font):
+    def display_leaderboard(self, screen, font):
         self.rank_records()
         y_offset = 100
         for idx, record in enumerate(self.records, start=1):

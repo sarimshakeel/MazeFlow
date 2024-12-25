@@ -1,6 +1,6 @@
 import pygame
 from generate import create_grid, generate_maze, draw_maze
-from solve import dfs,bfs
+from solve import dfs,bfs,dead_end_filling
 from leaderboard import Leaderboard
 
 pygame.init()
@@ -28,6 +28,7 @@ input_text = ""
 grid = None
 grid_mode = False
 leaderboard = Leaderboard()
+leaderboard.load_from_file('leaderboard.json')
 
 def generate(grid_size):
     screen.fill((0, 0, 0))
@@ -52,6 +53,15 @@ def solve_bfs():
             leaderboard.save_to_file('leaderboard.json')
         screen.blit(backimg, (btn_back.x, btn_back.y))
         pygame.display.flip()
+
+def solve_dead_end_filling():
+    if grid:
+        elapsed_time = dead_end_filling(screen, grid)
+        if elapsed_time is not None:
+            leaderboard.add_record("Dead End Filling", elapsed_time, f"{len(grid)}x{len(grid[0])}")
+            leaderboard.save_to_file('leaderboard.json')
+        screen.blit(backimg, (btn_back.x, btn_back.y))
+        pygame.display.flip()       
 
 def leaderboard_screen():
     screen.fill((0, 0, 0))
@@ -127,6 +137,9 @@ while running:
 
                 elif event.key == pygame.K_b:
                     solve_bfs()    
+
+                elif event.key == pygame.K_f:
+                    solve_dead_end_filling()
 
     if current_screen == "main":
         screen.fill((0, 0, 0))

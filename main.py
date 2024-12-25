@@ -1,6 +1,7 @@
 import pygame
-from maze_generation import create_grid, generate_maze, draw_maze
-from maze_solving import dfs
+from generate import create_grid, generate_maze, draw_maze
+from solve import dfs,bfs
+from leaderboard import Leaderboard
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -9,6 +10,7 @@ clock = pygame.time.Clock()
 
 fontp1 = r"C:\Users\sarim\Desktop\Maze Solver\add-ons\CASCADIACODE.ttf"
 font1 = pygame.font.Font(fontp1, 40)
+font2 = pygame.font.Font(fontp1, 20)
 
 btn1 = pygame.Rect(300, 200, 200, 50)
 btn2 = pygame.Rect(300, 300, 200, 50)
@@ -25,6 +27,7 @@ input_text = ""
 
 grid = None
 grid_mode = False
+leaderboard = Leaderboard()
 
 def generate(grid_size):
     screen.fill((0, 0, 0))
@@ -34,12 +37,26 @@ def generate(grid_size):
 
 def solve_dfs():
     if grid:
-        dfs(screen, grid)
+        elapsed_time = dfs(screen, grid)
+        if elapsed_time is not None:
+            leaderboard.add_record("DFS", elapsed_time, f"{len(grid)}x{len(grid[0])}")
+            leaderboard.save_to_file('leaderboard.json')
+        screen.blit(backimg, (btn_back.x, btn_back.y))
+        pygame.display.flip()
 
-def leaderboard():
+def solve_bfs():
+    if grid:
+        elapsed_time = bfs(screen, grid)
+        if elapsed_time is not None:
+            leaderboard.add_record("BFS", elapsed_time, f"{len(grid)}x{len(grid[0])}")
+            leaderboard.save_to_file('leaderboard.json')
+        screen.blit(backimg, (btn_back.x, btn_back.y))
+        pygame.display.flip()
+
+def leaderboard_screen():
     screen.fill((0, 0, 0))
-    text_surface = font1.render("LEADERBOARD", True, (0, 255, 0))
-    screen.blit(text_surface, (300, 200))
+    leaderboard.load_from_file('leaderboard.json')
+    leaderboard.display_leaderboard(screen, font2)
     screen.blit(backimg, (btn_back.x, btn_back.y))
     pygame.display.flip()
 
@@ -61,7 +78,7 @@ while running:
                     current_screen = "generate"
                 if btn2.collidepoint(mouse_pos):
                     current_screen = "leaderboard"
-                    leaderboard()
+                    leaderboard_screen()
                 if btn3.collidepoint(mouse_pos):
                     exit()
             elif current_screen == "generate":
@@ -85,6 +102,11 @@ while running:
                 if btn_back.collidepoint(mouse_pos):
                     current_screen = "main"
 
+            elif current_screen == "grid":
+                if btn_back.collidepoint(mouse_pos):
+                    current_screen = "generate"
+                    grid_mode = False
+
         if event.type == pygame.KEYDOWN:
             if input_active and current_screen == "generate":
                 if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
@@ -102,6 +124,9 @@ while running:
             elif current_screen == "grid":
                 if event.key == pygame.K_d:
                     solve_dfs()
+
+                elif event.key == pygame.K_b:
+                    solve_bfs()    
 
     if current_screen == "main":
         screen.fill((0, 0, 0))
@@ -154,7 +179,7 @@ while running:
             current_screen = "grid"
             generate_maze(screen, grid, grid_size, grid_size)
             draw_maze(screen, grid)
-        screen.blit(backimg, (btn_back.x, btn_back.y))    
+            screen.blit(backimg, (btn_back.x, btn_back.y))    
 
     pygame.display.flip()
     clock.tick(60)

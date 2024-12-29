@@ -17,6 +17,7 @@ btn2 = pygame.Rect(300, 300, 200, 50)
 btn3 = pygame.Rect(300, 400, 200, 50)
 btn_back = pygame.Rect(700, 10, 50, 50)
 btn_generate = pygame.Rect(300, 350, 200, 50)
+btn_clear = pygame.Rect(300, 450, 200, 50)
 
 backimg = pygame.image.load(r"C:\Users\sarim\Desktop\Maze Solver\add-ons\back.png")
 backimg = pygame.transform.scale(backimg, (50, 50))
@@ -41,7 +42,7 @@ def solve_dfs():
     if grid:
         elapsed_time = dfs(screen, grid)
         if elapsed_time is not None:
-            leaderboard.add_record("DFS", elapsed_time, f"{len(grid)}x{len(grid[0])}")
+            leaderboard.add_record("Depth-First Search", elapsed_time, f"{len(grid)}x{len(grid[0])}")
             leaderboard.save_to_file('leaderboard.json')
         screen.blit(backimg, (btn_back.x, btn_back.y))
         pygame.display.flip()
@@ -50,7 +51,7 @@ def solve_bfs():
     if grid:
         elapsed_time = bfs(screen, grid)
         if elapsed_time is not None:
-            leaderboard.add_record("BFS", elapsed_time, f"{len(grid)}x{len(grid[0])}")
+            leaderboard.add_record("Breadth-First Search", elapsed_time, f"{len(grid)}x{len(grid[0])}")
             leaderboard.save_to_file('leaderboard.json')
         screen.blit(backimg, (btn_back.x, btn_back.y))
         pygame.display.flip()
@@ -66,6 +67,8 @@ def solve_dead_end_filling():
 
 def leaderboard_screen():
     screen.fill((0, 0, 0))
+    text_surface = font1.render("Leaderboard", True, (0, 255, 0))
+    screen.blit(text_surface, (270, 30))
     leaderboard.load_from_file('leaderboard.json')
     leaderboard.display_leaderboard(screen, font2)
     screen.blit(backimg, (btn_back.x, btn_back.y))
@@ -112,6 +115,11 @@ while running:
             elif current_screen == "leaderboard":
                 if btn_back.collidepoint(mouse_pos):
                     current_screen = "main"
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    if btn_clear.collidepoint(mouse_pos):
+                        leaderboard.clear_leaderboard('leaderboard.json')    
 
             elif current_screen == "grid":
                 if btn_back.collidepoint(mouse_pos):
@@ -168,6 +176,17 @@ while running:
             btn3_txt = font1.render("EXIT", True, (255, 255, 255))
         btn3_txt_rect = btn3_txt.get_rect(center=btn3.center)
         screen.blit(btn3_txt, btn3_txt_rect)
+    
+    if current_screen == "leaderboard":
+        leaderboard.display_leaderboard(screen, font1)
+
+        btn_clear_txt = font1.render("Clear", True, (255, 0, 0))
+        if btn_clear.collidepoint(pygame.mouse.get_pos()):
+            btn_clear_txt = font1.render("Clear", True, (255, 255, 255))
+        btn_clear_txt_rect = btn_clear_txt.get_rect(center=btn_clear.center)
+        pygame.draw.rect(screen, (169, 0, 1), btn_clear, 2)
+        screen.blit(btn_clear_txt, btn_clear_txt_rect)
+
     elif current_screen == "generate":
         screen.fill((0, 0, 0))
 

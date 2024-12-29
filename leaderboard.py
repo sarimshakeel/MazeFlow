@@ -32,3 +32,7 @@ class Leaderboard:
             text_surface = font.render(f"{idx}: {record['algorithm_name']} - Time: {record['time_taken']}s, Grid Size: {record['grid_size']}", True, (0, 255, 0))
             screen.blit(text_surface, (50, y_offset))
             y_offset += 50
+    
+    def clear_leaderboard(self, filename):
+        self.records = []
+        self.save_to_file(filename)

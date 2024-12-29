@@ -4,6 +4,7 @@ import random
 Width, Height = 600, 600
 Green = (0, 255, 0)
 Black = (0, 0, 0)
+Padding = 10
 
 class Cell:
     def __init__(self, row, col, cell_size):
@@ -15,7 +16,7 @@ class Cell:
         self.children = []
 
     def draw(self, screen, color):
-        x, y = self.col * self.cell_size, self.row * self.cell_size
+        x, y = self.col * self.cell_size + Padding, self.row * self.cell_size + Padding
         if self.walls['top']:
             pygame.draw.line(screen, color, (x, y), (x + self.cell_size, y))
         if self.walls['right']:
@@ -26,11 +27,11 @@ class Cell:
             pygame.draw.line(screen, color, (x, y + self.cell_size), (x, y))
 
     def highlight(self, screen, color):
-        x, y = self.col * self.cell_size, self.row * self.cell_size
+        x, y = self.col * self.cell_size + Padding, self.row * self.cell_size + Padding
         pygame.draw.rect(screen, color, (x, y, self.cell_size, self.cell_size))
 
 def create_grid(rows, cols):
-    cell_size = Width // rows
+    cell_size = (Width - 2 * Padding) // rows  # Adjust cell size to account for padding
     grid = [[Cell(row, col, cell_size) for col in range(cols)] for row in range(rows)]
     return grid
 
